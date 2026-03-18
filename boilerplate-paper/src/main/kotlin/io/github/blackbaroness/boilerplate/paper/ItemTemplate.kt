@@ -17,6 +17,9 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.trim.ArmorTrim
+import org.bukkit.inventory.meta.trim.TrimMaterial
+import org.bukkit.inventory.meta.trim.TrimPattern
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionType
 
@@ -54,6 +57,16 @@ sealed class ItemTemplate {
         val hide: Boolean? = null,
         val hiddenComponents: Set<@Contextual DataComponentType>? = null,
     )
+
+    @Serializable
+    data class TrimConfiguration(
+        val material: @Contextual TrimMaterial,
+        val pattern: @Contextual TrimPattern,
+    ) {
+        fun toArmorTrim(): ArmorTrim {
+            return ArmorTrim(material, pattern)
+        }
+    }
 
     val cachedItem by lazy { createItem(TagResolver.empty()) }
 
@@ -177,7 +190,20 @@ sealed class ItemTemplate {
         override val unbreakable: Boolean? = null,
         override val enchantmentGlintOverride: Boolean? = null,
         override val attributeModifiers: List<AttributeConfiguration>? = null,
-    ) : ItemTemplate()
+        val trim: TrimConfiguration? = null,
+    ) : ItemTemplate() {
+
+        override fun modifyItem(item: ItemStack, miniMessage: MiniMessage, tagResolver: TagResolver) {
+            super.modifyItem(item, miniMessage, tagResolver)
+
+            trim?.also { value ->
+                item.setData(
+                    DataComponentTypes.TRIM,
+                    ItemArmorTrim.itemArmorTrim(value.toArmorTrim())
+                )
+            }
+        }
+    }
 
     @SerialName("player-head")
     @Serializable
