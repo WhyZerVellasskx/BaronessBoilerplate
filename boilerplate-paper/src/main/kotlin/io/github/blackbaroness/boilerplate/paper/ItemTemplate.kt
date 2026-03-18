@@ -191,15 +191,31 @@ sealed class ItemTemplate {
         override val enchantmentGlintOverride: Boolean? = null,
         override val attributeModifiers: List<AttributeConfiguration>? = null,
         val trim: TrimConfiguration? = null,
+    ) : ItemTemplate()
+
+    @SerialName("armor")
+    @Serializable
+    data class Armor(
+        override val material: @Contextual Material,
+        override val amount: Int? = null,
+        override val name: String? = null,
+        override val lore: List<String>? = null,
+        override val tooltip: TooltipConfiguration? = null,
+        override val enchantments: Map<@Contextual Enchantment, Int>? = null,
+        override val customModelData: CustomModelDataConfiguration? = null,
+        override val unbreakable: Boolean? = null,
+        override val enchantmentGlintOverride: Boolean? = null,
+        override val attributeModifiers: List<AttributeConfiguration>? = null,
+        val trim: TrimConfiguration? = null,
     ) : ItemTemplate() {
 
         override fun modifyItem(item: ItemStack, miniMessage: MiniMessage, tagResolver: TagResolver) {
             super.modifyItem(item, miniMessage, tagResolver)
 
-            trim?.also { value ->
+            trim?.also {
                 item.setData(
                     DataComponentTypes.TRIM,
-                    ItemArmorTrim.itemArmorTrim(value.toArmorTrim())
+                    ItemArmorTrim.itemArmorTrim(it.toArmorTrim()),
                 )
             }
         }
@@ -251,6 +267,7 @@ sealed class ItemTemplate {
         val color: @Contextual Color? = null,
         val effects: List<@Contextual PotionEffect>? = null,
     ) : ItemTemplate() {
+
         override fun modifyItem(item: ItemStack, miniMessage: MiniMessage, tagResolver: TagResolver) {
             super.modifyItem(item, miniMessage, tagResolver)
 
